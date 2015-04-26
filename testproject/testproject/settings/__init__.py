@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
 # -*- coding: utf-8 -*-
 from os import path as os_path
 PROJECT_PATH = os_path.abspath(os_path.split(os_path.dirname(__file__))[0])
@@ -13,8 +15,10 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'prepopulated.db',  # Or path to database file if using sqlite3.
+        # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3',
+        # Or path to database file if using sqlite3.
+        'NAME': 'prepopulated.db',
     }
 }
 
@@ -40,13 +44,13 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = [
@@ -106,13 +110,6 @@ INSTALLED_APPS = [
 from django import VERSION
 if VERSION < (1, 7):
     INSTALLED_APPS.append('south')
-    SOUTH_MIGRATION_MODULES = {
-        'django_nyt': 'django_nyt.south_migrations',
-        'wiki': 'wiki.south_migrations',
-        'images': 'wiki.plugins.images.south_migrations',
-        'notifications': 'wiki.plugins.notifications.south_migrations',
-        'attachments': 'wiki.plugins.attachments.south_migrations',
-    }
 else:
     TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -155,7 +152,7 @@ LOGIN_REDIRECT_URL = reverse_lazy('wiki:get', kwargs={'path': ''})
 
 
 try:
-    import debug_toolbar #@UnusedImport
+    import debug_toolbar  # @UnusedImport
     MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES) + [
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ]

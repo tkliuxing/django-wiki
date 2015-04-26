@@ -1,29 +1,40 @@
+# THANKS!
+# https://travis-ci.org/peterbe/premailer
+
+# This indicates to Travis that we will not use or need sudo
+# so that we can benefit from and use the cache->directories
+# directive.
+
+sudo: no
+
+env: PIP_DOWNLOAD_CACHE="pip_cache"
+
 language: python
-python:
-  - "2.6"
-  - "2.7"
-  - "3.2"
-  - "3.3"
+
+# See tox.ini for env list
 env:
-    - DJANGO="Django>=1.4,<1.5" SOUTH="South>=0.8.4" SORLTHUMBNAIL="sorl-thumbnail<11.12.1"
-    - DJANGO="Django>=1.5,<1.6" SOUTH="South>=0.8.4" SORLTHUMBNAIL="sorl-thumbnail>=11.12.1b"
-    - DJANGO="Django>=1.6,<1.7" SOUTH="South>=0.8.4" SORLTHUMBNAIL="sorl-thumbnail>=11.12.1b"
-    - DJANGO="https://www.djangoproject.com/download/1.7.b4/tarball/" SOUTH="" SORLTHUMBNAIL="sorl-thumbnail>=11.12.1b"
+- TOXENV=py26-django15
+- TOXENV=py26-django16
+- TOXENV=py27-django15
+- TOXENV=py27-django16
+- TOXENV=py27-django17
+- TOXENV=py27-django18
+- TOXENV=py34-django15
+- TOXENV=py34-django16
+- TOXENV=py34-django17
+- TOXENV=py34-django18
+
 install:
-  - pip install $DJANGO $SOUTH $SORLTHUMBNAIL -r .travis/requirements.txt
-matrix:
-    exclude:
-        # Python 2.6 support has been dropped in Django 1.7
-        - python: "2.6"
-          env: DJANGO="https://www.djangoproject.com/download/1.7.b4/tarball/" SOUTH="" SORLTHUMBNAIL="sorl-thumbnail>=11.12.1b"
-        # Support for python 3 was added in Django 1.5
-        - python: "3.3"
-          env: DJANGO="Django>=1.4,<1.5" SOUTH="South>=0.8.4" SORLTHUMBNAIL="sorl-thumbnail<11.12.1"
-        - python: "3.2"
-          env: DJANGO="Django>=1.4,<1.5" SOUTH="South>=0.8.4" SORLTHUMBNAIL="sorl-thumbnail<11.12.1"
-# command to run tests
+  - pip install tox coveralls
+
 script:
-  - cd testproject ; python -W error:"":"":0 manage.py test wiki --settings=testproject.settings.travis
+  - tox -e $TOXENV
+
 notifications:
-    irc:
-        - "irc.freenode.org#django-wiki"
+  irc:
+    - "irc.freenode.org#django-wiki"
+
+after_success:
+  - coverage combine
+  - coveralls
+

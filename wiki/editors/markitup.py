@@ -1,5 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
+from __future__ import absolute_import
 from django import forms
 from django.forms.util import flatatt
 try:
@@ -14,44 +15,55 @@ from wiki.editors.base import BaseEditor
 
 
 class MarkItUpAdminWidget(forms.Widget):
+
     """A simplified more fail-safe widget for the backend"""
+
     def __init__(self, attrs=None):
         # The 'rows' and 'cols' attributes are required for HTML correctness.
         default_attrs = {'class': 'markItUp',
-                         'rows': '10', 'cols': '40',}
+                         'rows': '10', 'cols': '40', }
         if attrs:
             default_attrs.update(attrs)
         super(MarkItUpAdminWidget, self).__init__(default_attrs)
-    
+
     def render(self, name, value, attrs=None):
-        if value is None: value = ''
+        if value is None:
+            value = ''
         final_attrs = self.build_attrs(attrs, name=name)
-        return mark_safe('<textarea%s>%s</textarea>' % (flatatt(final_attrs),
-                conditional_escape(force_unicode(value))))
+        return mark_safe(
+            '<textarea%s>%s</textarea>' %
+            (flatatt(final_attrs),
+             conditional_escape(
+                force_unicode(value))))
 
 
 class MarkItUpWidget(forms.Widget):
+
     def __init__(self, attrs=None):
         # The 'rows' and 'cols' attributes are required for HTML correctness.
         default_attrs = {'class': 'markItUp',
-                         'rows': '10', 'cols': '40',}
+                         'rows': '10', 'cols': '40', }
         if attrs:
             default_attrs.update(attrs)
         super(MarkItUpWidget, self).__init__(default_attrs)
-    
+
     def render(self, name, value, attrs=None):
-        if value is None: value = ''
+        if value is None:
+            value = ''
         final_attrs = self.build_attrs(attrs, name=name)
-        return mark_safe('<div><textarea%s>%s</textarea></div>' % (flatatt(final_attrs),
-                conditional_escape(force_unicode(value))))
+        return mark_safe(
+            '<div><textarea%s>%s</textarea></div>' %
+            (flatatt(final_attrs),
+             conditional_escape(
+                force_unicode(value))))
 
 
 class MarkItUp(BaseEditor):
     editor_id = 'markitup'
-    
+
     def get_admin_widget(self, instance=None):
         return MarkItUpAdminWidget()
-    
+
     def get_widget(self, instance=None):
         return MarkItUpWidget()
 
@@ -74,4 +86,3 @@ class MarkItUp(BaseEditor):
               "wiki/markitup/jquery.markitup.js",
               "wiki/markitup/sets/frontend/set.js",
               )
-

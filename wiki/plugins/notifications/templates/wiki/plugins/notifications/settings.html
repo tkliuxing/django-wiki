@@ -1,6 +1,6 @@
 {% extends "wiki/base.html" %}
 {% load wiki_tags i18n humanize %}
-{% load url from future %}
+
 
 {% block wiki_pagetitle %}{% trans "Notifications" %}: {{ article.current_revision.title }}{% endblock %}
 
@@ -31,7 +31,7 @@
     <div class="col-lg-2"></div>
     <div class="col-lg-10">
       <button type="submit" class="btn btn-primary">
-        <span class="icon-ok"></span>
+        <span class="fa fa-check"></span>
         {% trans "Save changes" %}
       </button>
     </div>

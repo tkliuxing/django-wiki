@@ -1,8 +1,10 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
 from testproject.settings import *
 from testproject.settings.local import *
 import os
 
-#Django Haystack
+# Django Haystack
 
 HAYSTACK_WHOOSH_PATH = os.path.join(PROJECT_PATH, 'index_woosh')
 
@@ -26,7 +28,7 @@ HAYSTACK_CONNECTIONS = {
 # https://github.com/toastdriven/django-haystack/issues/522
 # https://github.com/toastdriven/django-haystack/issues/382
 # https://github.com/toastdriven/django-haystack/issues/447
-#HAYSTACK_CONNECTIONS = {
+# HAYSTACK_CONNECTIONS = {
 #    'default': {
 #        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
 #        'PATH': os.path.join(PROJECT_PATH, 'whoosh_index'),

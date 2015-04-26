@@ -30,6 +30,7 @@ Options:
 """
 from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import absolute_import
 from docopt import docopt
 import os
 import re
@@ -45,7 +46,7 @@ else:
     User = get_user_model()
 
 user_orm_label = '%s.%s' % (User._meta.app_label, User._meta.object_name)
-user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name) 
+user_model_label = '%s.%s' % (User._meta.app_label, User._meta.model_name if hasattr(User._meta, 'model_name') else User._meta.module_name)
 
 
 """

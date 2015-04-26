@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.conf.urls import patterns, url, include
+from __future__ import absolute_import
+from django.conf.urls import url, include
 from django.utils.translation import ugettext as _
 
 from wiki.core.plugins import registry
@@ -14,37 +15,34 @@ from wiki.plugins.notifications.util import truncate_title
 
 
 class AttachmentPlugin(BasePlugin):
-    
+
     slug = settings.SLUG
     urlpatterns = {
-        'article': patterns('',
-            url('', include('wiki.plugins.attachments.urls')),
-        )
+        'article': [url('', include('wiki.plugins.attachments.urls'))]
     }
-    
-    article_tab = (_('Attachments'), "icon-file")
+
+    article_tab = (_('Attachments'), "fa fa-file")
     article_view = views.AttachmentView().dispatch
-    
+
     # List of notifications to construct signal handlers for. This
     # is handled inside the notifications plugin.
     notifications = [{
         'model': models.AttachmentRevision,
         'message': lambda obj: (
-            _("A file was changed: %s") 
-                if not obj.deleted 
-                else 
+            _("A file was changed: %s")
+            if not obj.deleted
+            else
             _("A file was deleted: %s")
-            ) % truncate_title(obj.get_filename()),
+        ) % truncate_title(obj.get_filename()),
         'key': ARTICLE_EDIT,
         'created': True,
         'get_article': lambda obj: obj.attachment.article}
     ]
-    
-    markdown_extensions = [AttachmentExtension()]
-    
-    def __init__(self):
-        #print "I WAS LOADED!"
-        pass
-    
-registry.register(AttachmentPlugin)
 
+    markdown_extensions = [AttachmentExtension()]
+
+    def __init__(self):
+        # print "I WAS LOADED!"
+        pass
+
+registry.register(AttachmentPlugin)
