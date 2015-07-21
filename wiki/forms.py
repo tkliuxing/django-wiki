@@ -11,7 +11,6 @@ from django import forms
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.forms.util import flatatt
 from six.moves import range
 try:
     from django.utils.encoding import force_unicode
@@ -34,6 +33,12 @@ from wiki.core import permissions
 
 from wiki.core.compat import get_user_model
 User = get_user_model()
+
+# Due to deprecation of django.forms.util in Django 1.9
+try:
+    from django.forms.utils import flatatt
+except ImportError:
+    from django.forms.util import flatatt
 
 
 class SpamProtectionMixin():
@@ -328,7 +333,6 @@ class CreateForm(forms.Form, SpamProtectionMixin):
                 parent=self.urlpath_parent)
         else:
             slug = slug.lower()
-            slug = slug.replace('-', '_')
             already_existing_slug = models.URLPath.objects.filter(
                 slug__iexact=slug,
                 parent=self.urlpath_parent)
