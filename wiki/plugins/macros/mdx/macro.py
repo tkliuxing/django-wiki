@@ -102,5 +102,5 @@ class MacroPreprocessor(markdown.preprocessors.Preprocessor):
         short_description=_('WikiLinks'),
         help_text=_(
             'Insert a link to another wiki page with a short notation.'),
-        example_code=_('[[WikiLink]]'),
+        example_code=_('[[WikiLink]] or [[link_path|Link Name]]'),
         args={})

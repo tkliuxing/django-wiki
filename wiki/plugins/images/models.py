@@ -56,7 +56,7 @@ class Image(RevisionPlugin):
     def __str__(self):
         title = (_('Image: %s') % self.current_revision.imagerevision.get_filename(
         )) if self.current_revision else _('Current revision not set!!')
-        return str(title)
+        return title
 
 
 @python_2_unicode_compatible
