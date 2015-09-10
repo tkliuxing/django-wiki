@@ -3,6 +3,8 @@
 
 from __future__ import print_function, unicode_literals
 
+import re
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
@@ -12,7 +14,7 @@ from . import settings
 from wiki import managers
 from wiki.models.pluginbase import ReusablePlugin
 from wiki.models.article import BaseRevisionMixin
-from wiki.core import article_markdown
+from wiki.core.markdown import article_markdown
 
 
 class Template(ReusablePlugin):
@@ -28,11 +30,20 @@ class Template(ReusablePlugin):
     )
 
     template_title = models.SlugField(unique=True)
+    extend_to_children = models.BooleanField(
+        verbose_name=_('extend'),
+        default=False,
+        help_text=_(
+            'You can extent this template to children articles.'
+            'They will be able to use this template without import.'
+        ),
+    )
 
     def can_write(self, user):
         if not settings.ANONYMOUS_WRITE and (not user or user.is_anonymous()):
             return False
-        return ReusablePlugin.can_write(self, user)
+        return self.article.can_write(user)
+        # return ReusablePlugin.can_write(self, user)
 
     def can_read(self, user):
         return settings.ANONYMOUS
@@ -52,6 +63,24 @@ class Template(ReusablePlugin):
     def __unicode__(self):
         return "%s Template: %s" % (self.article.current_revision.title, self.template_title)
 
+    @classmethod
+    def get_by_article(cls, article):
+        from django.db.models import Q
+        articles = []
+        urlapth = article.urlpath_set.all()
+        if not urlapth:
+            return cls.objects.none()
+        else:
+            urlapth = urlapth[0]
+        while urlapth.parent:
+            articles.append(urlapth.parent.article.id)
+            urlapth = urlapth.parent
+        return cls.objects.filter(
+            Q(current_revision__deleted=False),
+            Q(articles=article) | (
+                Q(article__in=articles) & Q(extend_to_children=True))
+        )
+
     def render(self, preview_content=None):
         if not self.current_revision:
             return ""
@@ -60,6 +89,46 @@ class Template(ReusablePlugin):
         else:
             content = self.current_revision.template_content
         return mark_safe(article_markdown(content, self))
+
+    @property
+    def md_tag(self):
+        return "{{%(title)s%(vals)s}}" % {
+            "title": self.template_title,
+            "vals": self.md_vals,
+        }
+
+    @property
+    def md_vals(self):
+        from functools import reduce
+        from six import text_type
+        content = self.current_revision.template_content
+        vals = []
+        RE_TEXT = r'.*{{{(.*?)}}}.*'
+        for li in content.splitlines():
+            while re.search(RE_TEXT, li):
+                sss = re.sub(RE_TEXT, r"\1", li)
+                li = li.replace("{{{%s}}}" % sss, "")
+                vals.append(sss)
+        vals.sort()
+        number_val = map(int, filter(lambda x: x.isdigit(), vals))
+        if number_val:
+            max_num_val = reduce(lambda x, y: max(x, y), number_val)
+            num_vals = "|" + \
+                "|".join(map(lambda x: text_type(x), range(max_num_val+1)))
+        else:
+            num_vals = ""
+        named_val = filter(lambda x: not x.isdigit(), vals)
+        named_val = "|".join(map(lambda x: x+"=", named_val))
+        named_val = "|"+named_val if named_val else ""
+        return "%(num_vals)s%(named_val)s" % {
+            "num_vals": num_vals,
+            "named_val": named_val,
+        }
+
+    @property
+    def no_empty_description(self):
+        template_desc_qs = self.templaterevision_set.exclude(description='').order_by("-revision_number")
+        return template_desc_qs[0].description if template_desc_qs else ''
 
 
 class TemplateRevision(BaseRevisionMixin, models.Model):
@@ -107,6 +176,10 @@ class TemplateRevision(BaseRevisionMixin, models.Model):
             # me!
             self.template.current_revision = self
             self.template.save()
+
+        # Clear article cache
+        for article in self.template.articles.all():
+            article.clear_cache()
 
     def __unicode__(self):
         return "%s: %s (r%d)" % (self.template.article.current_revision.title,

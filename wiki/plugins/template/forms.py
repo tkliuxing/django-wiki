@@ -17,12 +17,23 @@ class TemplateForm(forms.ModelForm):
             'Note that you cannot change the title after creating the template.'
         ),
     )
+    extend_to_children = forms.BooleanField(
+        label=_('Extend'),
+        help_text=_(
+            'You can extent this template to children articles.'
+            'They will be able to use this template without import.'
+        ),
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         self.article = kwargs.pop('article', None)
         self.request = kwargs.pop('request', None)
         self.template = kwargs.pop('template', None)
         super(TemplateForm, self).__init__(*args, **kwargs)
+        if self.template and self.template.extend_to_children:
+            self.fields["extend_to_children"].widget.attrs[
+                "checked"] = "checked"
 
     def clean_template_title(self):
         title = self.cleaned_data['template_title']
@@ -42,6 +53,8 @@ class TemplateForm(forms.ModelForm):
             template = models.Template()
             template.article = self.article
             template.template_title = self.cleaned_data['template_title']
+            template.extend_to_children = self.cleaned_data[
+                'extend_to_children']
             if commit:
                 template.save()
             template.articles.add(self.article)
@@ -55,7 +68,12 @@ class TemplateForm(forms.ModelForm):
 
     class Meta:
         model = models.TemplateRevision
-        fields = ('template_title', 'template_content', 'description',)
+        fields = (
+            'template_title',
+            'template_content',
+            'extend_to_children',
+            'description',
+        )
         widgets = {
             'template_content': getEditor().get_widget(),
             'description': forms.TextInput(),
@@ -64,10 +82,22 @@ class TemplateForm(forms.ModelForm):
 
 class RevisionForm(forms.ModelForm):
 
+    extend_to_children = forms.BooleanField(
+        label=_('Extend'),
+        help_text=_(
+            'You can extent this template to children articles.'
+            'They will be able to use this template without import.'
+        ),
+        required=False,
+    )
+
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         self.template = kwargs.pop('template')
         super(RevisionForm, self).__init__(*args, **kwargs)
+        if self.template and self.template.extend_to_children:
+            self.fields["extend_to_children"].widget.attrs[
+                "checked"] = "checked"
 
     def save(self, *args, **kwargs):
         template_revision = super(RevisionForm, self).save(commit=False)
@@ -76,12 +106,13 @@ class RevisionForm(forms.ModelForm):
         template_revision.set_from_request(self.request)
         template_revision.save()
         template.current_revision = template_revision
+        template.extend_to_children = self.cleaned_data['extend_to_children']
         template.save()
         return template_revision
 
     class Meta:
         model = models.TemplateRevision
-        fields = ('template_content', 'description',)
+        fields = ('template_content', 'description', 'extend_to_children')
         widgets = {
             'template_content': getEditor().get_widget(),
             'description': forms.TextInput(),
