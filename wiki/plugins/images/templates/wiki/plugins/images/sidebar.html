@@ -10,7 +10,7 @@ function insert_image(image_id) {
   if (! caption == '') {
     $('#id_content').insertAtCaret(imagetag+'\n    '+caption+'\n\n');
   } else {
-    $('#id_content').insertAtCaret(imagetag+'\n\n');  
+    $('#id_content').insertAtCaret(imagetag+'\n\n');
   }
 }
 </script>
@@ -28,6 +28,7 @@ function insert_image(image_id) {
         <tr>
           <td style="white-space: nowrap;">
             <p>{% trans "Image id" %}: {{ image.id }}</code></p>
+            <p>{% trans "Image name" %}: {{ revision.name }}</code></p>
             <p>
               <a href="javascript:void(insert_image({{ image.id }}))"><span class="fa fa-edit"></span> {% trans "Insert" %}</a><br />
               {% if image|can_write:user %}
@@ -66,7 +67,7 @@ function insert_image(image_id) {
     {% for error_message in form.non_field_errors %}
       <div class="alert alert-block alert-error">
         {{ error_message }}
-      </div>    
+      </div>
     {% endfor %}
   {% endif %}
 
@@ -79,11 +80,11 @@ function insert_image(image_id) {
   {% for field in form.visible_fields %}
     <fieldset id="div_{{ field.auto_id }}" class="control-group fields {% if field.errors %} error{% endif %}">
       {% if field.label %}
-        <!--<label for="{{ field.id_for_label }}" class="{% if field.field.required %}requiredField{% endif %}">
+        <label for="{{ field.id_for_label }}" class="{% if field.field.required %}requiredField{% endif %}">
         {{ field.label|safe }}
-        </label>-->
+        </label>
       {% endif %}
-      {{ field }}
+      <div>{{ field }}</div>
       {% if field.errors %}
       <div id="error_{{ forloop.counter }}_{{ field.auto_id }}" class="help-block">
         {% for error in field.errors %}
@@ -105,7 +106,7 @@ function insert_image(image_id) {
     </button>
   </p>
 {% else %}
-  
+
   {% if user.is_anonymous %}
     {% include "wiki/includes/anonymous_blocked.html" %}
   {% else %}
@@ -122,6 +123,9 @@ function insert_image(image_id) {
 <p>{% trans "After uploading an image, it is attached to this particular artice and can be used only here. Other users may replace the image, but older versions are kept. You probably want to show the image with a nice caption. To achieve this, press the Insert button and fill in the caption fields and possibly choose to have you image floating right or left of the content. You can use Markdown in the caption. The markdown code syntax for images looks like this, possible values for align are left and right:" %}<br />
 <pre>[image:id align:right]
     caption indented by 4 spaces</pre>
+</p>
+<p>{% trans "Or use image's name and wiki link add a inline-image link." %}
+<pre>![Link Label](image:Image Name)(wiki:Wiki Link Path)</pre>
 </p>
 
 

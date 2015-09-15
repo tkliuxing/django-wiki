@@ -66,7 +66,7 @@ class ImageRevision(RevisionPluginRevision):
                               max_length=2000, height_field='height',
                               width_field='width', blank=True, null=True,
                               storage=settings.STORAGE_BACKEND)
-
+    name = models.CharField(_('Image Name'), max_length=100, null=True, blank=True, db_index=True)
     width = models.SmallIntegerField(blank=True, null=True)
     height = models.SmallIntegerField(blank=True, null=True)
 

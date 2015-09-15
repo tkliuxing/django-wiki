@@ -15,7 +15,7 @@ class TemplateExtension(markdown.Extension):
         md.preprocessors.add(
             'dw-template',
             TemplatePreprocessor(md),
-            '>html_block'
+            '>normalize_whitespace'
         )
 
 
@@ -108,7 +108,7 @@ class TemplatePreprocessor(markdown.preprocessors.Preprocessor):
                 )
                 line = re.sub(
                     RE_TEXT,
-                    lambda x: x.group(1)+content+x.group(3),
+                    lambda x: x.group(1) + content + x.group(3),
                     line
                 )
                 m = re.match(RE_TEXT, line)
@@ -119,7 +119,7 @@ class TemplatePreprocessor(markdown.preprocessors.Preprocessor):
                 "\u0018+\u0018", "}}"
             )
             # Doesn't support mixed markdown and html
-            if matched and ("</" in line or "/>" in line):
-                line = self.markdown.htmlStash.store(line, safe=True)
+            # if matched and ("</" in line or "/>" in line):
+            #     line = self.markdown.htmlStash.store(line, safe=True)
             new_text.append(line)
         return new_text

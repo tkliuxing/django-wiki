@@ -33,7 +33,7 @@ class SidebarForm(PluginSidebarFormMixin):
 
     class Meta:
         model = models.ImageRevision
-        fields = ('image',)
+        fields = ('image', 'name',)
 
 
 class RevisionForm(forms.ModelForm):
@@ -57,7 +57,7 @@ class RevisionForm(forms.ModelForm):
 
     class Meta:
         model = models.ImageRevision
-        fields = ('image',)
+        fields = ('image', 'name')
 
 
 class PurgeForm(forms.Form):
