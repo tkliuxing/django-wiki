@@ -84,10 +84,13 @@ class ImageLinks(markdown.inlinepatterns.Pattern):
         div.append(a1)
         span = markdown.util.etree.Element('span')
         span.set('class', 'starbound')
+        span_blank = markdown.util.etree.Element('span')
+        span_blank.text = "&nbsp;"
+        div.append(span_blank)
         a2 = markdown.util.etree.Element('a')
         a2.set('href', path)
         a2.set('title', link_title)
-        a2.text = "&nbsp;" + link_title
+        a2.text = link_title
         div.append(a2)
         return div
 
