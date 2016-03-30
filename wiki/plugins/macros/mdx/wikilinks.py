@@ -8,10 +8,20 @@ from markdown.extensions import wikilinks
 import markdown
 import re
 
+from django.core.urlresolvers import reverse
+
 
 def build_url(label, base, end, md):
     """ Build a url from the label, a base, and an end. """
     clean_label = re.sub(r'([ ]+_)|(_[ ]+)|([ ]+)', '_', label)
+    urlpaths = md.article.urlpath_set.all()
+    # Nevermind about the base we are fed, just keep the original
+    # call pattern from the wikilinks plugin for later...
+    base = reverse('wiki:get', kwargs={'path': ''})
+    for urlpath in urlpaths:
+        if urlpath.children.filter(slug=clean_label).exists():
+            base = ''
+            break
     return '%s%s%s' % (base, clean_label, end)
 
 

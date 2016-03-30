@@ -19,7 +19,10 @@ Contents:
    release_notes
    known_issues
    faq
+   history
+   todo
 
+.. include:: ../README.rst
 
 Indices and tables
 ==================

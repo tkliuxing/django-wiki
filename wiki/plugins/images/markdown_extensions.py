@@ -1,18 +1,16 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from __future__ import unicode_literals
-# -*- coding: utf-8 -*-
+
 import markdown
 import re
 
-from os import path as os_path
-
-from django.template.loader import render_to_string
-from django.template import Context
 
 IMAGE_RE = re.compile(
     r'.*(\[image\:(?P<id>\d+)(\s+align\:(?P<align>right|left))?\s*\]).*',
     re.IGNORECASE)
 
+from wiki.core.compat import render_to_string
 from wiki.plugins.images import models
 
 
@@ -46,6 +44,7 @@ class ImageExtension(markdown.Extension):
         imagelinkPattern.md = md
         md.inlinePatterns.add('imagelink', imagelinkPattern, "<image_link")
         md.preprocessors.add('dw-images', ImagePreprocessor(md), '>html_block')
+        md.postprocessors.add('dw-images-cleanup', ImagePostprocessor(md), '>raw_html')
 
 
 class ImageLinks(markdown.inlinepatterns.Pattern):
@@ -107,8 +106,17 @@ class ImageLinks(markdown.inlinepatterns.Pattern):
 
 
 class ImagePreprocessor(markdown.preprocessors.Preprocessor):
+    """
+    django-wiki image preprocessor
+    Parse text for [image:id align:left|right|center] references.
 
-    """django-wiki image preprocessor - parse text for [image:id align:left|right|center] references. """
+    For instance:
+
+    [image:id align:left|right|center]
+        This is the caption text maybe with [a link](...)
+
+    So: Remember that the caption text is fully valid markdown!
+    """
 
     def run(self, lines):
         new_text = []
@@ -144,9 +152,11 @@ class ImagePreprocessor(markdown.preprocessors.Preprocessor):
                     caption_placeholder = "{{{IMAGECAPTION}}}"
                     html = render_to_string(
                         "wiki/plugins/images/render.html",
-                        Context(
-                            {'image': image, 'caption': caption_placeholder,
-                             'align': alignment}))
+                        context={
+                            'image': image,
+                            'caption': caption_placeholder,
+                            'align': alignment,
+                        })
                     html_before, html_after = html.split(caption_placeholder)
                     placeholder_before = self.markdown.htmlStash.store(
                         html_before,
@@ -171,3 +181,18 @@ class ImagePreprocessor(markdown.preprocessors.Preprocessor):
             if line is not None:
                 new_text.append(line)
         return new_text
+
+
+class ImagePostprocessor(markdown.postprocessors.Postprocessor):
+
+    def run(self, text):
+        """
+        This cleans up after Markdown's well-intended placing of image tags
+        inside <p> elements. The problem is that Markdown should put
+        <p> tags around images as they are inline elements. However, because
+        we wrap them in <figure>, we don't actually want it and have to
+        remove it again after.
+        """
+        text = text.replace("<p><figure", "<figure")
+        text = text.replace("</figure>\n</p>", "</figure>")
+        return text

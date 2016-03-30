@@ -2,7 +2,6 @@
 build
 dist
 *.egg-info
-README.rst
 testproject/testproject/whoosh_index/
 testproject/testproject/xapian_index/
 
@@ -30,6 +29,7 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+.cache
 
 #Eclipse
 .project

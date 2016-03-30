@@ -88,7 +88,7 @@ To install the latest stable release::
 Install directly from Github (in case you have no worries about
 deploying our master branch directly)::
 
-    pip install git+git://github.com/benjaoming/django-wiki.git
+    pip install git+git://github.com/django-wiki/django-wiki.git
 
 Upgrade
 -------
@@ -103,7 +103,7 @@ maintain the order due to database relational constraints:
 
 .. code-block:: python
 
-    'django.contrib.sites', # django 1.6.2
+    'django.contrib.sites', # django 1.6.2+
     'django.contrib.humanize',
     'django_nyt',
     'mptt',
@@ -215,15 +215,15 @@ following lines at the end of your project's ``urls.py``.
 Please use these function calls rather than writing your own include()
 call - the url namespaces aren't supposed to be customized.
 
-**Django < 1.7+**:
+**Django >= 1.8**:
 
 .. code-block:: python
 
     from wiki.urls import get_pattern as get_wiki_pattern
     from django_nyt.urls import get_pattern as get_nyt_pattern
     urlpatterns += [
-        (r'^notifications/', get_nyt_pattern()),
-        (r'', get_wiki_pattern())
+        url(r'^notifications/', get_nyt_pattern()),
+        url(r'', get_wiki_pattern())
     ]
 
 
